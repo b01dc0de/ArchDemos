@@ -4,21 +4,20 @@
 /* ----- BEGIN WIN PLATFORM INCLUDES ----- */
 #define WIN32_LEAN_AND_MEAN
 #include <Windows.h>
-#include <d3d11.h>
-#include <d3dcompiler.h>
-#include <dxgi.h>
 /* -----  END  WIN PLATFORM INCLUDES ----- */
 
 /* ----- BEGIN C/C++ STD LIB INCLUDES ----- */
 #include <cstdio>
 /* -----  END  C/C++ STD LIB INCLUDES ----- */
 
-int WINAPI WinMain
-(
-	HINSTANCE hInst,
-	HINSTANCE hPrevInst,
-	PSTR CmdLine,
-	int ShowWnd
-);
+/* ----- BEGIN OPENGL INCLUDES ----- */
+//#include <gl/GL.h>
+//#include <gl/GLU.h>
+#include <glad/gl.h>
+#include <GLFW/glfw3.h>
+/* -----  END  OPENGL INCLUDES ----- */
+
+#define APPNAME_W() (L"ArchDemos")
+#define APPNAME_A() ("ArchDemos")
 
 #endif // ARCHDEMOS_H
