@@ -5,7 +5,7 @@ static bool bRunning = true;
 
 static void ErrorCallback(int ErrNo, const char* ErrDesc)
 {
-	OutputDebugString(ErrDesc);
+    OutputDebugString(ErrDesc);
 }
 
 static void KeyCallback(GLFWwindow* Window, int Key, int ScanCode, int Action, int Mods)
@@ -16,59 +16,88 @@ static void KeyCallback(GLFWwindow* Window, int Key, int ScanCode, int Action, i
     }
 }
 
-int main(int argc, const char* argv[])
+namespace Arch
 {
-	(void)argc;
-	(void)argv;
+    int Width = 1280;
+    int Height = 960;
+    const char* WindowTitle = "ArchDemos";
+    GLFWwindow* Window = nullptr;
 
-	OutputDebugString("TEST -- ARCHDEMOS -- INIT.\n");
+    static bool Init()
+    {
+        bool bResult = true;
 
-	int ExitCode = 0;
+        if (!glfwInit())
+        {
+            OutputDebugString("ERROR: glfwInit FAILED!\n");
+            bResult = false;
+        }
 
-	if (!glfwInit())
-	{
-        OutputDebugString("ERROR: glfwInit FAILED!\n");
-		ExitCode = 1;
-	}
-	else
-	{
-		int Width = 1280;
-		int Height = 960;
-        const char* WindowTitle = "ArchDemos";
-		GLFWwindow* Window = glfwCreateWindow(Width, Height, WindowTitle, nullptr, nullptr);
-		if (!Window)
-		{
+        Window = glfwCreateWindow(Width, Height, WindowTitle, nullptr, nullptr);
+        if (!Window)
+        {
             OutputDebugString("ERROR: glfwCreateWindow FAILED!\n");
-		}
-		else
-		{
-			// Set callbacks
+            bResult = false;
+        }
+        else
+        {
+            // Set callbacks
             glfwSetErrorCallback(ErrorCallback);
             glfwSetKeyCallback(Window, KeyCallback);
 
-			glfwMakeContextCurrent(Window);
+            glfwMakeContextCurrent(Window);
             gladLoadGL(glfwGetProcAddress);
 
-			glfwSwapInterval(1);
+            glfwSwapInterval(1);
+        }
 
-			bool bRunning = true;
-			while (bRunning)
-			{
-				glfwPollEvents();
+        return bResult;
+    }
 
-                int FrameWidth = 0, FrameHeight = 0;
-                glfwGetFramebufferSize(Window, &FrameWidth, &FrameHeight);
-                glViewport(0, 0, FrameWidth, FrameHeight);
-				glClear(GL_COLOR_BUFFER_BIT);
-				glfwSwapBuffers(Window);
+    static bool MainLoop()
+    {
+        bool bResult = true;
 
-                bRunning = !glfwWindowShouldClose(Window);
-			}
-		}
+        bool bRunning = true;
+        while (bRunning)
+        {
+            glfwPollEvents();
 
-		if (Window) { glfwDestroyWindow(Window); }
-		glfwTerminate();
-	}
+            int FrameWidth = 0, FrameHeight = 0;
+            glfwGetFramebufferSize(Window, &FrameWidth, &FrameHeight);
+            glViewport(0, 0, FrameWidth, FrameHeight);
+            glClear(GL_COLOR_BUFFER_BIT);
+            glfwSwapBuffers(Window);
 
-	return ExitCode;
+            bRunning = !glfwWindowShouldClose(Window);
+        }
+
+        return bResult;
+    }
+
+    static bool Term()
+    {
+        bool bResult = true;
+
+        if (Window) { glfwDestroyWindow(Window); }
+        glfwTerminate();
+
+        return bResult;
+    }
+}
+
+int main(int argc, const char* argv[])
+{
+    (void)argc;
+    (void)argv;
+
+    bool bResults = true;
+
+    if (bResults &= Arch::Init())
+    {
+        bResults &= Arch::MainLoop();
+        bResults &= Arch::Term();
+    }
+
+    return bResults ? 0 : 1;
 }

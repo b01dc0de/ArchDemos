@@ -17,7 +17,4 @@
 #include <GLFW/glfw3.h>
 /* -----  END  OPENGL INCLUDES ----- */
 
-#define APPNAME_W() (L"ArchDemos")
-#define APPNAME_A() ("ArchDemos")
-
 #endif // ARCHDEMOS_H
