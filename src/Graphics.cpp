@@ -30,32 +30,36 @@ namespace Arch
         VxColor{{0.5f, 0.5f, DefaultZ}, {1.0f, 1.0f, 0.0f}},
     };
 
+    void PipelineState::Init(const char* VertexSrcFilename, const char* FragmentSrcFilename)
+    {
+        GLchar* vshader_src = (GLchar*)ReadFileContents(VertexSrcFilename);
+        GLchar* fshader_src = (GLchar*)ReadFileContents(FragmentSrcFilename);
+
+        vshader = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vshader, 1, &vshader_src, nullptr);
+        glCompileShader(vshader);
+
+        fshader = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fshader, 1, &fshader_src, nullptr);
+        glCompileShader(fshader);
+
+        program = glCreateProgram();
+        glAttachShader(program, vshader);
+        glAttachShader(program, fshader);
+        glLinkProgram(program);
+
+        delete[] vshader_src;
+        delete[] fshader_src;
+    }
+
     void GFXState::Init()
     {
-        GLchar* vxcolor_vshader_src = (GLchar*)ReadFileContents("src/glsl/vxcolor_v.glsl");
-        GLchar* vxcolor_fshader_src = (GLchar*)ReadFileContents("src/glsl/vxcolor_f.glsl");
+        vxcolor.Init("src/glsl/vxcolor_v.glsl", "src/glsl/vxcolor_f.glsl");
+        //vxunicolor.Init("src/glsl/vxunicolor_v.glsl", "src/glsl/vxunicolor_f.glsl");
 
-        { // VxColor
-            GraphicsState.vxcolor_v_shader = glCreateShader(GL_VERTEX_SHADER);
-            glShaderSource(GraphicsState.vxcolor_v_shader, 1, &vxcolor_vshader_src, nullptr);
-            glCompileShader(GraphicsState.vxcolor_v_shader);
-
-            GraphicsState.vxcolor_f_shader = glCreateShader(GL_FRAGMENT_SHADER);
-            glShaderSource(GraphicsState.vxcolor_f_shader, 1, &vxcolor_fshader_src, nullptr);
-            glCompileShader(GraphicsState.vxcolor_f_shader);
-
-            GraphicsState.vxcolor_program = glCreateProgram();
-            glAttachShader(GraphicsState.vxcolor_program, GraphicsState.vxcolor_v_shader);
-            glAttachShader(GraphicsState.vxcolor_program, GraphicsState.vxcolor_f_shader);
-            glLinkProgram(GraphicsState.vxcolor_program);
-
-            GraphicsState.mvp_loc = glGetUniformLocation(GraphicsState.vxcolor_program, "MVP");
-            GraphicsState.vpos_loc = glGetAttribLocation(GraphicsState.vxcolor_program, "vPos");
-            GraphicsState.vcol_loc = glGetAttribLocation(GraphicsState.vxcolor_program, "vCol");
-
-            delete[] vxcolor_vshader_src;
-            delete[] vxcolor_fshader_src;
-        }
+        mvp_loc = glGetUniformLocation(vxcolor.program, "MVP");
+        vpos_loc = glGetAttribLocation(vxcolor.program, "vPos");
+        vcol_loc = glGetAttribLocation(vxcolor.program, "vCol");
 
         { // Tri
             glGenBuffers(1, &GraphicsState.tri_vx_buffer);
@@ -96,7 +100,7 @@ namespace Arch
 
         HMM_Mat4 MVP = HMM_M4D(1.0f);
 
-        glUseProgram(GraphicsState.vxcolor_program);
+        glUseProgram(GraphicsState.vxcolor.program);
         glUniformMatrix4fv(GraphicsState.mvp_loc, 1, GL_FALSE, (const GLfloat*)&MVP);
 
         glBindVertexArray(GraphicsState.tri_vx_array);
