@@ -8,6 +8,7 @@
 
 /* ----- BEGIN C/C++ STD LIB INCLUDES ----- */
 #include <cstdio>
+#include <string>
 /* -----  END  C/C++ STD LIB INCLUDES ----- */
 
 /* ----- BEGIN OPENGL INCLUDES ----- */
@@ -16,5 +17,8 @@
 #include <glad/gl.h>
 #include <GLFW/glfw3.h>
 /* -----  END  OPENGL INCLUDES ----- */
+/* ----- BEGIN LIB INCLUDES ----- */
+#include <HandmadeMath.h>
+/* -----  END  LIB INCLUDES ----- */
 
 #endif // ARCHDEMOS_H
