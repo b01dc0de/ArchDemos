@@ -6,12 +6,13 @@ static bool bRunning = true;
 #define SINGLE_FILE_BUILD() (1)
 #if SINGLE_FILE_BUILD()
     #include "Engine.cpp"
+    #include "Graphics.cpp"
 #endif // SINGLE_FILE_BUILD()
 
 int main(int argc, const char* argv[])
 {
     static const int ExitCode_Success = 0;
-    static const int ExitCode_Error = 1;
+    static const int ExitCode_Error = -1;
 
     bool bResults = true;
 

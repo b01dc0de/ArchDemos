@@ -1,5 +1,5 @@
-#ifndef ENGINE_H
-#define ENGINE_H
+#ifndef ARCHDEMOS_ENGINE_H
+#define ARCHDEMOS_ENGINE_H
 
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof(A[0]))
 
@@ -25,4 +25,4 @@ namespace Arch
     };
 }
 
-#endif // ENGINE_H
+#endif // ARCHDEMOS_ENGINE_H
