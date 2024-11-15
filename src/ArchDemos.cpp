@@ -7,6 +7,7 @@ static bool bRunning = true;
 #if SINGLE_FILE_BUILD()
     #include "Engine.cpp"
     #include "Graphics.cpp"
+    #include "Utils.cpp"
 #endif // SINGLE_FILE_BUILD()
 
 int main(int argc, const char* argv[])
