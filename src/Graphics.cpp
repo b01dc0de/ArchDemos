@@ -55,11 +55,11 @@ namespace Arch
     void GFXState::Init()
     {
         vxcolor.Init("src/glsl/vxcolor_v.glsl", "src/glsl/vxcolor_f.glsl");
-        //vxunicolor.Init("src/glsl/vxunicolor_v.glsl", "src/glsl/vxunicolor_f.glsl");
+        vxunicolor.Init("src/glsl/vxunicolor_v.glsl", "src/glsl/vxunicolor_f.glsl");
 
-        mvp_loc = glGetUniformLocation(vxcolor.program, "MVP");
-        vpos_loc = glGetAttribLocation(vxcolor.program, "vPos");
-        vcol_loc = glGetAttribLocation(vxcolor.program, "vCol");
+        vxcolor_mvp_loc = glGetUniformLocation(vxcolor.program, "MVP");
+        vxcolor_vpos_loc = glGetAttribLocation(vxcolor.program, "vPos");
+        vxcolor_vcol_loc = glGetAttribLocation(vxcolor.program, "vCol");
 
         { // Tri
             glGenBuffers(1, &GraphicsState.tri_vx_buffer);
@@ -68,10 +68,10 @@ namespace Arch
             glGenVertexArrays(1, &GraphicsState.tri_vx_array);
             glBindVertexArray(GraphicsState.tri_vx_array);
 
-            glEnableVertexAttribArray(GraphicsState.vpos_loc);
-            glVertexAttribPointer(GraphicsState.vpos_loc, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Pos));
-            glEnableVertexAttribArray(GraphicsState.vcol_loc);
-            glVertexAttribPointer(GraphicsState.vcol_loc, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Col));
+            glEnableVertexAttribArray(GraphicsState.vxcolor_vpos_loc);
+            glVertexAttribPointer(GraphicsState.vxcolor_vpos_loc, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Pos));
+            glEnableVertexAttribArray(GraphicsState.vxcolor_vcol_loc);
+            glVertexAttribPointer(GraphicsState.vxcolor_vcol_loc, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Col));
         }
 
         { // Quad
@@ -81,11 +81,21 @@ namespace Arch
             glGenVertexArrays(1, &GraphicsState.quad_vx_array);
             glBindVertexArray(GraphicsState.quad_vx_array);
 
-            glEnableVertexAttribArray(GraphicsState.vpos_loc);
-            glVertexAttribPointer(GraphicsState.vpos_loc, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Pos));
-            glEnableVertexAttribArray(GraphicsState.vcol_loc);
-            glVertexAttribPointer(GraphicsState.vcol_loc, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Col));
+            glEnableVertexAttribArray(GraphicsState.vxcolor_vpos_loc);
+            glVertexAttribPointer(GraphicsState.vxcolor_vpos_loc, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Pos));
+            glEnableVertexAttribArray(GraphicsState.vxcolor_vcol_loc);
+            glVertexAttribPointer(GraphicsState.vxcolor_vcol_loc, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Col));
         }
+    }
+
+    HMM_Mat4 GetOrthographicVP(float Width, float Height)
+    {
+        HMM_Vec3 ScaleV{ Width / 2.0f, -Height / 2.0f, 1.0f };
+        HMM_Vec3 TransV{ Width / 2.0f, Height / 2.0f, 0.0f }; // Origin == Center
+
+        HMM_Mat4 View = HMM_Translate(TransV) * HMM_Scale(ScaleV);
+        HMM_Mat4 Proj = HMM_Orthographic_RH_NO(0.0f, Width, Height, 0.0f, -1.0f, 1.0f);
+        return Proj * View;
     }
 
     void GFXState::Draw()
@@ -99,13 +109,18 @@ namespace Arch
         glClear(GL_COLOR_BUFFER_BIT);
 
         HMM_Mat4 MVP = HMM_M4D(1.0f);
+        HMM_Mat4 ViewProj = GetOrthographicVP((float)FrameWidth, (float)FrameHeight);
+        { // Orthographic Camera
+            MVP = ViewProj;
+        }
 
         glUseProgram(GraphicsState.vxcolor.program);
-        glUniformMatrix4fv(GraphicsState.mvp_loc, 1, GL_FALSE, (const GLfloat*)&MVP);
+        glUniformMatrix4fv(GraphicsState.vxcolor_mvp_loc, 1, GL_FALSE, (const GLfloat*)&MVP);
 
         glBindVertexArray(GraphicsState.tri_vx_array);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
+        glUniformMatrix4fv(GraphicsState.vxcolor_mvp_loc, 1, GL_FALSE, (const GLfloat*)&MVP);
         glBindVertexArray(GraphicsState.quad_vx_array);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 

@@ -25,9 +25,9 @@ namespace Arch
         PipelineState vxcolor;
         PipelineState vxunicolor;
 
-        GLint mvp_loc = 0;
-        GLint vpos_loc = 0;
-        GLint vcol_loc = 0;
+        GLint vxcolor_mvp_loc = 0;
+        GLint vxcolor_vpos_loc = 0;
+        GLint vxcolor_vcol_loc = 0;
 
         int BgIdx = 0;
 
