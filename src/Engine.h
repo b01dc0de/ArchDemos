@@ -16,13 +16,6 @@ namespace Arch
         float B;
         float A;
     };
-
-    struct Vec3
-    {
-        float X;
-        float Y;
-        float Z;
-    };
 }
 
 #endif // ARCHDEMOS_ENGINE_H

@@ -61,6 +61,17 @@ namespace Arch
         vxcolor_vpos_loc = glGetAttribLocation(vxcolor.program, "vPos");
         vxcolor_vcol_loc = glGetAttribLocation(vxcolor.program, "vCol");
 
+        {
+            Tri.Pos = Vec2{ -125.0f, 125.0f };
+            Tri.Size = Vec2{ 100.0f, 100.0f };
+            Tri.RotZ = 0.0f;
+
+            Quad.Pos = Vec2{ 500.0f, 250.0f};
+            Quad.Size = Vec2{ 200.0f, 200.0f };
+            Quad.RotZ = 0.0f;
+        }
+
+
         { // Tri
             glGenBuffers(1, &GraphicsState.tri_vx_buffer);
             glBindBuffer(GL_ARRAY_BUFFER, GraphicsState.tri_vx_buffer);
@@ -88,14 +99,12 @@ namespace Arch
         }
     }
 
-    HMM_Mat4 GetOrthographicVP(float Width, float Height)
+    Mat4 GetOrthoVP(float Width, float Height)
     {
-        HMM_Vec3 ScaleV{ Width / 2.0f, -Height / 2.0f, 1.0f };
-        HMM_Vec3 TransV{ Width / 2.0f, Height / 2.0f, 0.0f }; // Origin == Center
-
-        HMM_Mat4 View = HMM_Translate(TransV) * HMM_Scale(ScaleV);
-        HMM_Mat4 Proj = HMM_Orthographic_RH_NO(0.0f, Width, Height, 0.0f, -1.0f, 1.0f);
-        return Proj * View;
+        float HalfWidth = Width * 0.5f;
+        float HalfHeight = Height * 0.5f;
+        Mat4 ViewProj = HMM_Orthographic_RH_NO(-HalfWidth, HalfWidth, -HalfHeight, HalfHeight, -1.0f, 1.0f);
+        return ViewProj;
     }
 
     void GFXState::Draw()
@@ -108,19 +117,23 @@ namespace Arch
         glClearColor(BgColors[BgIdx].R, BgColors[BgIdx].G, BgColors[BgIdx].B, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-        HMM_Mat4 MVP = HMM_M4D(1.0f);
-        HMM_Mat4 ViewProj = GetOrthographicVP((float)FrameWidth, (float)FrameHeight);
-        { // Orthographic Camera
-            MVP = ViewProj;
-        }
-
         glUseProgram(GraphicsState.vxcolor.program);
+
+        Mat4 VP = GetOrthoVP((float)FrameWidth, (float)FrameHeight);
+        HMM_Mat4 MVP = HMM_M4D(1.0f);
+        float fTime = (float)glfwGetTime();
+
+        Tri.RotZ = fTime;
+        MVP = VP * Tri.GetModelTransform();
         glUniformMatrix4fv(GraphicsState.vxcolor_mvp_loc, 1, GL_FALSE, (const GLfloat*)&MVP);
 
         glBindVertexArray(GraphicsState.tri_vx_array);
         glDrawArrays(GL_TRIANGLES, 0, 3);
 
+        Quad.RotZ = -2.0f * fTime;
+        MVP = VP * Quad.GetModelTransform();
         glUniformMatrix4fv(GraphicsState.vxcolor_mvp_loc, 1, GL_FALSE, (const GLfloat*)&MVP);
+
         glBindVertexArray(GraphicsState.quad_vx_array);
         glDrawArrays(GL_TRIANGLES, 0, 6);
 

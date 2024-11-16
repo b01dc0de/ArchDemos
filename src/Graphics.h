@@ -14,6 +14,22 @@ namespace Arch
         void Init(const char* VertexSrcFilename, const char* FragmentSrcFilename);
     };
 
+    struct Entity2D
+    {
+        Vec2 Pos{ 0.0f, 0.0f };
+        Vec2 Size{ 1.0f, 1.0f };
+        float RotZ = 0.0f;
+
+        Mat4 GetModelTransform()
+        {
+            static const Vec3 AxisZ{ 0.0f, 0.0f, 1.0f };
+            Vec3 TransV{Pos.X, Pos.Y, 0.0f};
+            Vec3 ScaleV{Size.X, Size.Y, 1.0f};
+            Mat4 Model = HMM_Translate(TransV) * HMM_Rotate_RH(RotZ, AxisZ) * HMM_Scale(ScaleV);
+            return Model;
+        }
+    };
+
     struct GFXState
     {
         GLuint tri_vx_buffer = 0;
@@ -30,6 +46,9 @@ namespace Arch
         GLint vxcolor_vcol_loc = 0;
 
         int BgIdx = 0;
+
+        Entity2D Tri;
+        Entity2D Quad;
 
         void Init();
         void Draw();

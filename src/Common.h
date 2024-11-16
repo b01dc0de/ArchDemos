@@ -22,6 +22,7 @@
 #include <HandmadeMath.h>
 /* -----  END  LIB INCLUDES ----- */
 /* ----- BEGIN ARCHDEMOS INCLUDES ----- */
+#include "Math.h"
 #include "Utils.h"
 /* -----  END  ARCHDEMOS INCLUDES ----- */
 
