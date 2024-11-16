@@ -4,12 +4,6 @@ namespace Arch
 {
     GFXState GraphicsState;
 
-    struct VxColor
-    {
-        Vec3 Pos;
-        Vec3 Col;
-    };
-
     static const float DefaultZ = 0.5f;
 
     static const VxColor TriVxs[] =
@@ -28,6 +22,21 @@ namespace Arch
         // TODO: Remove these dupes
         VxColor{{-0.5f, -0.5f, DefaultZ}, {0.0f, 1.0f, 1.0f}},
         VxColor{{0.5f, 0.5f, DefaultZ}, {1.0f, 1.0f, 0.0f}},
+    };
+
+    static const float QuadSize = 0.5f;
+    static const VxMin MinQuadVxs[] =
+    {
+        VxMin{-QuadSize, -QuadSize, 0.5f,},
+        VxMin{QuadSize, -QuadSize, 0.5f,},
+        VxMin{QuadSize, QuadSize, 0.5f},
+        VxMin{-QuadSize, QuadSize, 0.5f},
+    };
+    using IxT = float;
+    static const IxT QuadIxs[] =
+    {
+        0, 1, 2,
+        0, 2, 3
     };
 
     void PipelineState::Init(const char* VertexSrcFilename, const char* FragmentSrcFilename)
@@ -70,7 +79,6 @@ namespace Arch
             Quad.Size = Vec2{ 200.0f, 200.0f };
             Quad.RotZ = 0.0f;
         }
-
 
         { // Tri
             glGenBuffers(1, &GraphicsState.tri_vx_buffer);

@@ -5,6 +5,17 @@
 
 namespace Arch
 {
+    struct VxColor
+    {
+        Vec3 Pos;
+        Vec3 Col;
+    };
+
+    struct VxMin
+    {
+        Vec3 Pos;
+    };
+
     struct PipelineState
     {
         GLuint vshader = 0;
@@ -37,6 +48,10 @@ namespace Arch
 
         GLuint quad_vx_buffer = 0;
         GLuint quad_vx_array = 0;
+
+        GLuint unicolor_quad_vx_buffer = 0;
+        GLuint unicolor_quad_vx_array = 0;
+        GLuint unicolor_quad_ix_buffer = 0;
 
         PipelineState vxcolor;
         PipelineState vxunicolor;
