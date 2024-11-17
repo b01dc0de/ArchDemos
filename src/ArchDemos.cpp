@@ -8,6 +8,7 @@ static bool bRunning = true;
     #include "Engine.cpp"
     #include "Graphics.cpp"
     #include "Utils.cpp"
+    #include "Game/Tetris.cpp"
 #endif // SINGLE_FILE_BUILD()
 
 int main(int argc, const char* argv[])
