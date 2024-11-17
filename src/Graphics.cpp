@@ -73,12 +73,12 @@ namespace Arch
         vxcolor_vcol_loc = glGetAttribLocation(vxcolor.program, "vCol");
 
         {
-            Tri.Pos = Vec2{ -125.0f, 125.0f };
+            Tri.Pos = Vec2{ -570.0f, 405.0f };
             Tri.Size = Vec2{ 100.0f, 100.0f };
             Tri.RotZ = 0.0f;
 
-            Quad.Pos = Vec2{ 500.0f, 250.0f};
-            Quad.Size = Vec2{ 200.0f, 200.0f };
+            Quad.Pos = Vec2{ 570.0f, 410.0f};
+            Quad.Size = Vec2{ 100.0f, 100.0f };
             Quad.RotZ = 0.0f;
 
             UniQuad.Pos = Vec2{ 250.0f, -250.0f };
