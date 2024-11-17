@@ -15,6 +15,7 @@ namespace Arch
             BLOCK_Z,
             BLOCK_T,
             BLOCK_NUM
+        };
 
         static const int GridWidth = 10;
         static const int GridHeight = 20;
