@@ -1,0 +1,12 @@
+# Tetris
+- [Spec](https://tetris.wiki/Tetris_Guideline)
+- Rules
+    - The visible part of the playfield (Matrix) is 10x20 cells, with a buffer zone of 20 rows above that aren't visible. A few pixels of the 21st row might be visible to show the active piece before its fully visible
+    - Super Rotation System: 5 points of rotation
+    - Tetrominos 'spawn' on the 21st and 22nd rows, in the center (+ rounded to the left). They start with their flat side down
+    - The next piece(s) to be dropped (Next Queue) is visible to the player
+    - 7 Bag: The drop order of the pieces is as follows
+        - The 7 pieces are randomly shuffled
+        - Each of the pieces drop in that order
+        - Repeat with a new 'bag'
+    - Ghost piece shows where piece would dropat the bottom of the grid
