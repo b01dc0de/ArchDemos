@@ -48,6 +48,11 @@ namespace Arch
 
         GLuint quad_vx_buffer = 0;
         GLuint quad_vx_array = 0;
+        GLuint quad_ix_buffer = 0;
+
+        GLint vxunicolor_mvp_loc = 0;
+        GLint vxunicolor_ucol_loc = 0;
+        GLint vxunicolor_vpos_loc = 0;
 
         GLuint unicolor_quad_vx_buffer = 0;
         GLuint unicolor_quad_vx_array = 0;
@@ -61,9 +66,11 @@ namespace Arch
         GLint vxcolor_vcol_loc = 0;
 
         int BgIdx = 0;
+        int QuadColIdx = 1;
 
         Entity2D Tri;
         Entity2D Quad;
+        Entity2D UniQuad;
 
         void Init();
         void Draw();

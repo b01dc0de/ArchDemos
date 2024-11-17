@@ -1,10 +1,10 @@
 #version 330
 
 uniform mat4 MVP;
-uniform vec3 uCol;
+uniform vec4 uCol;
 
 in vec3 vPos;
-out vec3 color;
+out vec4 color;
 
 void main()
 {

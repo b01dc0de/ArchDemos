@@ -27,6 +27,7 @@ namespace Arch
         else if (Key == GLFW_KEY_ENTER && Action == GLFW_PRESS)
         {
             GraphicsState.BgIdx = (GraphicsState.BgIdx + 1) % NumBgColors;
+            GraphicsState.QuadColIdx = (GraphicsState.BgIdx + 1) % NumBgColors;
         }
     }
 

@@ -13,7 +13,7 @@ target_include_directories(ArchDemos PRIVATE libs/HandmadeMath)
 set_property(TARGET ArchDemos PROPERTY CXX_STANDARD 11)
 if(MSVC)
     SET(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} /ENTRY:mainCRTStartup")
-	#set_target_properties(ArchDemos PROPERTIES LINK_FLAGS "/SUBSYSTEM:WINDOWS")
+    set_target_properties(ArchDemos PROPERTIES VS_DEBUGGER_WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}")
 endif() # MSVC
 
 # Build and link with GLFW
