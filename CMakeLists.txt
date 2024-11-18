@@ -1,5 +1,5 @@
-﻿# Require CMake >= 3.8
-cmake_minimum_required (VERSION 3.8)
+﻿# Require CMake >= 3.10
+cmake_minimum_required (VERSION 3.10)
 
 project(ArchDemos)
 set(SRC_DIR src)
