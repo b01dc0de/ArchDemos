@@ -46,18 +46,18 @@ namespace Arch
         GLchar* vshader_src = (GLchar*)ReadFileContents(VertexSrcFilename);
         GLchar* fshader_src = (GLchar*)ReadFileContents(FragmentSrcFilename);
 
-        vshader = glCreateShader(GL_VERTEX_SHADER);
-        glShaderSource(vshader, 1, &vshader_src, nullptr);
-        glCompileShader(vshader);
+        vShader = glCreateShader(GL_VERTEX_SHADER);
+        glShaderSource(vShader, 1, &vshader_src, nullptr);
+        glCompileShader(vShader);
 
-        fshader = glCreateShader(GL_FRAGMENT_SHADER);
-        glShaderSource(fshader, 1, &fshader_src, nullptr);
-        glCompileShader(fshader);
+        fShader = glCreateShader(GL_FRAGMENT_SHADER);
+        glShaderSource(fShader, 1, &fshader_src, nullptr);
+        glCompileShader(fShader);
 
-        program = glCreateProgram();
-        glAttachShader(program, vshader);
-        glAttachShader(program, fshader);
-        glLinkProgram(program);
+        Program = glCreateProgram();
+        glAttachShader(Program, vShader);
+        glAttachShader(Program, fShader);
+        glLinkProgram(Program);
 
         delete[] vshader_src;
         delete[] fshader_src;
@@ -65,12 +65,12 @@ namespace Arch
 
     void GFXState::Init()
     {
-        vxcolor.Init("src/glsl/vxcolor_v.glsl", "src/glsl/vxcolor_f.glsl");
-        vxunicolor.Init("src/glsl/vxunicolor_v.glsl", "src/glsl/vxunicolor_f.glsl");
+        PipelineColor.Init("src/glsl/vxcolor_v.glsl", "src/glsl/vxcolor_f.glsl");
+        PipelineUnicolor.Init("src/glsl/vxunicolor_v.glsl", "src/glsl/vxunicolor_f.glsl");
 
-        vxcolor_mvp_loc = glGetUniformLocation(vxcolor.program, "MVP");
-        vxcolor_vpos_loc = glGetAttribLocation(vxcolor.program, "vPos");
-        vxcolor_vcol_loc = glGetAttribLocation(vxcolor.program, "vCol");
+        PipelineColor_Loc_MVP = glGetUniformLocation(PipelineColor.Program, "MVP");
+        PipelineColor_Loc_vPos = glGetAttribLocation(PipelineColor.Program, "vPos");
+        PipelineColor_Loc_vCol = glGetAttribLocation(PipelineColor.Program, "vCol");
 
         {
             Tri.Pos = Vec2{ -570.0f, 405.0f };
@@ -87,48 +87,48 @@ namespace Arch
         }
 
         {
-            vxunicolor_mvp_loc = glGetUniformLocation(vxunicolor.program, "MVP");
-            vxunicolor_ucol_loc = glGetUniformLocation(vxunicolor.program, "uCol");
-            vxunicolor_vpos_loc = glGetAttribLocation(vxunicolor.program, "vPos");
+            PipelineUnicolor_Loc_MVP = glGetUniformLocation(PipelineUnicolor.Program, "MVP");
+            PipelineUnicolor_Loc_uCol = glGetUniformLocation(PipelineUnicolor.Program, "uCol");
+            PipelineUnicolor_Loc_vPos = glGetAttribLocation(PipelineUnicolor.Program, "vPos");
 
-            glGenBuffers(1, &unicolor_quad_vx_buffer);
-            glBindBuffer(GL_ARRAY_BUFFER, unicolor_quad_vx_buffer);
+            glGenBuffers(1, &UnicolorQuad_VxBuff);
+            glBindBuffer(GL_ARRAY_BUFFER, UnicolorQuad_VxBuff);
             glBufferData(GL_ARRAY_BUFFER, sizeof(MinQuadVxs), MinQuadVxs, GL_STATIC_DRAW);
-            glGenVertexArrays(1, &unicolor_quad_vx_array);
-            glBindVertexArray(unicolor_quad_vx_array);
+            glGenVertexArrays(1, &UnicolorQuad_VAO);
+            glBindVertexArray(UnicolorQuad_VAO);
 
-            glEnableVertexAttribArray(vxunicolor_vpos_loc);
-            glVertexAttribPointer(vxunicolor_vpos_loc, 3, GL_FLOAT, GL_FALSE, sizeof(VxMin), (void*)offsetof(VxMin, Pos));
+            glEnableVertexAttribArray(PipelineUnicolor_Loc_vPos);
+            glVertexAttribPointer(PipelineUnicolor_Loc_vPos, 3, GL_FLOAT, GL_FALSE, sizeof(VxMin), (void*)offsetof(VxMin, Pos));
 
             glBindVertexArray(0);
         }
 
         { // Tri
-            glGenBuffers(1, &GraphicsState.tri_vx_buffer);
-            glBindBuffer(GL_ARRAY_BUFFER, GraphicsState.tri_vx_buffer);
+            glGenBuffers(1, &Tri_VxBuff);
+            glBindBuffer(GL_ARRAY_BUFFER, Tri_VxBuff);
             glBufferData(GL_ARRAY_BUFFER, sizeof(TriVxs), TriVxs, GL_STATIC_DRAW);
-            glGenVertexArrays(1, &GraphicsState.tri_vx_array);
-            glBindVertexArray(GraphicsState.tri_vx_array);
+            glGenVertexArrays(1, &Tri_VAO);
+            glBindVertexArray(Tri_VAO);
 
-            glEnableVertexAttribArray(GraphicsState.vxcolor_vpos_loc);
-            glVertexAttribPointer(GraphicsState.vxcolor_vpos_loc, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Pos));
-            glEnableVertexAttribArray(GraphicsState.vxcolor_vcol_loc);
-            glVertexAttribPointer(GraphicsState.vxcolor_vcol_loc, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Col));
+            glEnableVertexAttribArray(PipelineColor_Loc_vPos);
+            glVertexAttribPointer(PipelineColor_Loc_vPos, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Pos));
+            glEnableVertexAttribArray(PipelineColor_Loc_vCol);
+            glVertexAttribPointer(PipelineColor_Loc_vCol, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Col));
 
             glBindVertexArray(0);
         }
 
         { // Quad
-            glGenBuffers(1, &GraphicsState.quad_vx_buffer);
-            glBindBuffer(GL_ARRAY_BUFFER, GraphicsState.quad_vx_buffer);
+            glGenBuffers(1, &Quad_VxBuff);
+            glBindBuffer(GL_ARRAY_BUFFER, Quad_VxBuff);
             glBufferData(GL_ARRAY_BUFFER, sizeof(QuadVxs), QuadVxs, GL_STATIC_DRAW);
-            glGenVertexArrays(1, &GraphicsState.quad_vx_array);
-            glBindVertexArray(GraphicsState.quad_vx_array);
+            glGenVertexArrays(1, &Quad_VAO);
+            glBindVertexArray(Quad_VAO);
 
-            glEnableVertexAttribArray(GraphicsState.vxcolor_vpos_loc);
-            glVertexAttribPointer(GraphicsState.vxcolor_vpos_loc, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Pos));
-            glEnableVertexAttribArray(GraphicsState.vxcolor_vcol_loc);
-            glVertexAttribPointer(GraphicsState.vxcolor_vcol_loc, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Col));
+            glEnableVertexAttribArray(PipelineColor_Loc_vPos);
+            glVertexAttribPointer(PipelineColor_Loc_vPos, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Pos));
+            glEnableVertexAttribArray(PipelineColor_Loc_vCol);
+            glVertexAttribPointer(PipelineColor_Loc_vCol, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Col));
 
             glBindVertexArray(0);
         }
@@ -157,37 +157,36 @@ namespace Arch
         float fTime = (float)glfwGetTime();
         HMM_Mat4 MVP = HMM_M4D(1.0f);
         { // Draw Tri
-            glUseProgram(GraphicsState.vxcolor.program);
+            glUseProgram(PipelineColor.Program);
 
             Tri.RotZ = fTime;
             MVP = VP * Tri.GetModelTransform();
-            glUniformMatrix4fv(GraphicsState.vxcolor_mvp_loc, 1, GL_FALSE, (const GLfloat*)&MVP);
+            glUniformMatrix4fv(PipelineColor_Loc_MVP, 1, GL_FALSE, (const GLfloat*)&MVP);
 
-            glBindVertexArray(GraphicsState.tri_vx_array);
+            glBindVertexArray(Tri_VAO);
             glDrawArrays(GL_TRIANGLES, 0, 3);
-
         }
 
         { // Draw Quad
-            glUseProgram(GraphicsState.vxcolor.program);
+            glUseProgram(PipelineColor.Program);
 
             Quad.RotZ = -2.0f * fTime;
             MVP = VP * Quad.GetModelTransform();
-            glUniformMatrix4fv(GraphicsState.vxcolor_mvp_loc, 1, GL_FALSE, (const GLfloat*)&MVP);
+            glUniformMatrix4fv(PipelineColor_Loc_MVP, 1, GL_FALSE, (const GLfloat*)&MVP);
 
-            glBindVertexArray(GraphicsState.quad_vx_array);
+            glBindVertexArray(Quad_VAO);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
 
         {
-            glUseProgram(vxunicolor.program);
+            glUseProgram(PipelineUnicolor.Program);
 
             UniQuad.RotZ = 0.0f;
             MVP = VP * UniQuad.GetModelTransform();
-            glUniformMatrix4fv(vxcolor_mvp_loc, 1, GL_FALSE, (const GLfloat*)&MVP);
-            glUniform4fv(vxunicolor_ucol_loc, 1, (const GLfloat*)&BgColors[QuadColIdx]);
+            glUniformMatrix4fv(PipelineColor_Loc_MVP, 1, GL_FALSE, (const GLfloat*)&MVP);
+            glUniform4fv(PipelineUnicolor_Loc_uCol, 1, (const GLfloat*)&BgColors[QuadColIdx]);
 
-            glBindVertexArray(unicolor_quad_vx_array);
+            glBindVertexArray(UnicolorQuad_VAO);
             glDrawArrays(GL_TRIANGLES, 0, 6);
         }
 

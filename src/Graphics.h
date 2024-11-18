@@ -18,9 +18,9 @@ namespace Arch
 
     struct PipelineState
     {
-        GLuint vshader = 0;
-        GLuint fshader = 0;
-        GLuint program = 0;
+        GLuint vShader = 0;
+        GLuint fShader = 0;
+        GLuint Program = 0;
 
         void Init(const char* VertexSrcFilename, const char* FragmentSrcFilename);
     };
@@ -43,27 +43,24 @@ namespace Arch
 
     struct GFXState
     {
-        GLuint tri_vx_buffer = 0;
-        GLuint tri_vx_array = 0;
+        GLuint Tri_VxBuff = 0;
+        GLuint Tri_VAO = 0;
 
-        GLuint quad_vx_buffer = 0;
-        GLuint quad_vx_array = 0;
-        GLuint quad_ix_buffer = 0;
+        GLuint Quad_VxBuff = 0;
+        GLuint Quad_VAO = 0;
 
-        GLint vxunicolor_mvp_loc = 0;
-        GLint vxunicolor_ucol_loc = 0;
-        GLint vxunicolor_vpos_loc = 0;
+        GLuint UnicolorQuad_VxBuff = 0;
+        GLuint UnicolorQuad_VAO = 0;
 
-        GLuint unicolor_quad_vx_buffer = 0;
-        GLuint unicolor_quad_vx_array = 0;
-        GLuint unicolor_quad_ix_buffer = 0;
+        PipelineState PipelineColor;
+        GLint PipelineColor_Loc_MVP = 0;
+        GLint PipelineColor_Loc_vPos = 0;
+        GLint PipelineColor_Loc_vCol = 0;
 
-        PipelineState vxcolor;
-        PipelineState vxunicolor;
-
-        GLint vxcolor_mvp_loc = 0;
-        GLint vxcolor_vpos_loc = 0;
-        GLint vxcolor_vcol_loc = 0;
+        PipelineState PipelineUnicolor;
+        GLint PipelineUnicolor_Loc_MVP = 0;
+        GLint PipelineUnicolor_Loc_uCol = 0;
+        GLint PipelineUnicolor_Loc_vPos = 0;
 
         int BgIdx = 0;
         int QuadColIdx = 1;
