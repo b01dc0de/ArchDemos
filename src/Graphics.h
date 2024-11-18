@@ -5,6 +5,20 @@
 
 namespace Arch
 {
+    enum struct VertexType
+    {
+        Color,
+        Min,
+        Count
+    };
+
+    enum struct PipelineStateType
+    {
+        Color,
+        Unicolor,
+        Count
+    };
+
     struct VxColor
     {
         Vec3 Pos;
@@ -23,7 +37,23 @@ namespace Arch
         GLuint Program = 0;
 
         void Init(const char* VertexSrcFilename, const char* FragmentSrcFilename);
+        void Term();
     };
+
+    struct Mesh
+    {
+        size_t NumVxs = 0;
+        GLuint VxBuff = 0;
+        GLuint VAO = 0;
+
+        void Init(size_t InNumVxs, size_t VxSize, const void* VxData);
+        void BindVAO();
+        void Draw();
+        void Term();
+    };
+
+    //struct VxAttribs { };
+    //struct UniformLocs { };
 
     struct Entity2D
     {
@@ -43,15 +73,6 @@ namespace Arch
 
     struct GFXState
     {
-        GLuint Tri_VxBuff = 0;
-        GLuint Tri_VAO = 0;
-
-        GLuint Quad_VxBuff = 0;
-        GLuint Quad_VAO = 0;
-
-        GLuint UnicolorQuad_VxBuff = 0;
-        GLuint UnicolorQuad_VAO = 0;
-
         PipelineState PipelineColor;
         GLint PipelineColor_Loc_MVP = 0;
         GLint PipelineColor_Loc_vPos = 0;
@@ -61,6 +82,10 @@ namespace Arch
         GLint PipelineUnicolor_Loc_MVP = 0;
         GLint PipelineUnicolor_Loc_uCol = 0;
         GLint PipelineUnicolor_Loc_vPos = 0;
+
+        Mesh Mesh_Tri;
+        Mesh Mesh_Quad;
+        Mesh Mesh_UniQuad;
 
         int BgIdx = 0;
         int QuadColIdx = 1;

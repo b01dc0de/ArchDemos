@@ -63,14 +63,53 @@ namespace Arch
         delete[] fshader_src;
     }
 
+    void PipelineState::Term()
+    {
+        glDeleteShader(vShader);
+        glDeleteShader(fShader);
+        glDeleteProgram(Program);
+    }
+
+    void Mesh::Init(size_t InNumVxs, size_t VxSize, const void* VxData)
+    {
+        NumVxs = InNumVxs;
+
+        glGenBuffers(1, &VxBuff);
+        glBindBuffer(GL_ARRAY_BUFFER, VxBuff);
+        glBufferData(GL_ARRAY_BUFFER, VxSize * InNumVxs, VxData, GL_STATIC_DRAW);
+
+        glGenVertexArrays(1, &VAO);
+        glBindVertexArray(VAO);
+    }
+
+    void Mesh::BindVAO()
+    {
+        glBindVertexArray(VAO);
+    }
+
+    void Mesh::Draw()
+    {
+        BindVAO();
+        glDrawArrays(GL_TRIANGLES, 0, (GLsizei)NumVxs);
+    }
+
+    void Mesh::Term()
+    {
+        glDeleteBuffers(1, &VxBuff);
+        glDeleteVertexArrays(1, &VAO);
+    }
+
     void GFXState::Init()
     {
         PipelineColor.Init("src/glsl/vxcolor_v.glsl", "src/glsl/vxcolor_f.glsl");
-        PipelineUnicolor.Init("src/glsl/vxunicolor_v.glsl", "src/glsl/vxunicolor_f.glsl");
-
         PipelineColor_Loc_MVP = glGetUniformLocation(PipelineColor.Program, "MVP");
         PipelineColor_Loc_vPos = glGetAttribLocation(PipelineColor.Program, "vPos");
         PipelineColor_Loc_vCol = glGetAttribLocation(PipelineColor.Program, "vCol");
+
+        PipelineUnicolor.Init("src/glsl/vxunicolor_v.glsl", "src/glsl/vxunicolor_f.glsl");
+        PipelineUnicolor_Loc_MVP = glGetUniformLocation(PipelineUnicolor.Program, "MVP");
+        PipelineUnicolor_Loc_uCol = glGetUniformLocation(PipelineUnicolor.Program, "uCol");
+        PipelineUnicolor_Loc_vPos = glGetAttribLocation(PipelineUnicolor.Program, "vPos");
 
         {
             Tri.Pos = Vec2{ -570.0f, 405.0f };
@@ -87,51 +126,26 @@ namespace Arch
         }
 
         {
-            PipelineUnicolor_Loc_MVP = glGetUniformLocation(PipelineUnicolor.Program, "MVP");
-            PipelineUnicolor_Loc_uCol = glGetUniformLocation(PipelineUnicolor.Program, "uCol");
-            PipelineUnicolor_Loc_vPos = glGetAttribLocation(PipelineUnicolor.Program, "vPos");
+            Mesh_Tri.Init(ARRAY_SIZE(TriVxs), sizeof(VxColor), TriVxs);
+            Mesh_Tri.BindVAO(); 
+            glEnableVertexAttribArray(PipelineColor_Loc_vPos);
+            glVertexAttribPointer(PipelineColor_Loc_vPos, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Pos));
+            glEnableVertexAttribArray(PipelineColor_Loc_vCol);
+            glVertexAttribPointer(PipelineColor_Loc_vCol, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Col));
 
-            glGenBuffers(1, &UnicolorQuad_VxBuff);
-            glBindBuffer(GL_ARRAY_BUFFER, UnicolorQuad_VxBuff);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(MinQuadVxs), MinQuadVxs, GL_STATIC_DRAW);
-            glGenVertexArrays(1, &UnicolorQuad_VAO);
-            glBindVertexArray(UnicolorQuad_VAO);
+            Mesh_Quad.Init(ARRAY_SIZE(QuadVxs), sizeof(VxColor), QuadVxs);
+            Mesh_Quad.BindVAO();
+            glEnableVertexAttribArray(PipelineColor_Loc_vPos);
+            glVertexAttribPointer(PipelineColor_Loc_vPos, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Pos));
+            glEnableVertexAttribArray(PipelineColor_Loc_vCol);
+            glVertexAttribPointer(PipelineColor_Loc_vCol, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Col));
 
+            Mesh_UniQuad.Init(ARRAY_SIZE(MinQuadVxs), sizeof(VxMin), MinQuadVxs);
+            Mesh_UniQuad.BindVAO();
             glEnableVertexAttribArray(PipelineUnicolor_Loc_vPos);
             glVertexAttribPointer(PipelineUnicolor_Loc_vPos, 3, GL_FLOAT, GL_FALSE, sizeof(VxMin), (void*)offsetof(VxMin, Pos));
-
-            glBindVertexArray(0);
         }
 
-        { // Tri
-            glGenBuffers(1, &Tri_VxBuff);
-            glBindBuffer(GL_ARRAY_BUFFER, Tri_VxBuff);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(TriVxs), TriVxs, GL_STATIC_DRAW);
-            glGenVertexArrays(1, &Tri_VAO);
-            glBindVertexArray(Tri_VAO);
-
-            glEnableVertexAttribArray(PipelineColor_Loc_vPos);
-            glVertexAttribPointer(PipelineColor_Loc_vPos, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Pos));
-            glEnableVertexAttribArray(PipelineColor_Loc_vCol);
-            glVertexAttribPointer(PipelineColor_Loc_vCol, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Col));
-
-            glBindVertexArray(0);
-        }
-
-        { // Quad
-            glGenBuffers(1, &Quad_VxBuff);
-            glBindBuffer(GL_ARRAY_BUFFER, Quad_VxBuff);
-            glBufferData(GL_ARRAY_BUFFER, sizeof(QuadVxs), QuadVxs, GL_STATIC_DRAW);
-            glGenVertexArrays(1, &Quad_VAO);
-            glBindVertexArray(Quad_VAO);
-
-            glEnableVertexAttribArray(PipelineColor_Loc_vPos);
-            glVertexAttribPointer(PipelineColor_Loc_vPos, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Pos));
-            glEnableVertexAttribArray(PipelineColor_Loc_vCol);
-            glVertexAttribPointer(PipelineColor_Loc_vCol, 3, GL_FLOAT, GL_FALSE, sizeof(VxColor), (void*)offsetof(VxColor, Col));
-
-            glBindVertexArray(0);
-        }
     }
 
     Mat4 GetOrthoVP(float Width, float Height)
@@ -152,7 +166,6 @@ namespace Arch
         glClearColor(BgColors[BgIdx].R, BgColors[BgIdx].G, BgColors[BgIdx].B, 1.0f);
         glClear(GL_COLOR_BUFFER_BIT);
 
-
         Mat4 VP = GetOrthoVP((float)FrameWidth, (float)FrameHeight);
         float fTime = (float)glfwGetTime();
         HMM_Mat4 MVP = HMM_M4D(1.0f);
@@ -163,8 +176,7 @@ namespace Arch
             MVP = VP * Tri.GetModelTransform();
             glUniformMatrix4fv(PipelineColor_Loc_MVP, 1, GL_FALSE, (const GLfloat*)&MVP);
 
-            glBindVertexArray(Tri_VAO);
-            glDrawArrays(GL_TRIANGLES, 0, 3);
+            Mesh_Tri.Draw();
         }
 
         { // Draw Quad
@@ -174,11 +186,10 @@ namespace Arch
             MVP = VP * Quad.GetModelTransform();
             glUniformMatrix4fv(PipelineColor_Loc_MVP, 1, GL_FALSE, (const GLfloat*)&MVP);
 
-            glBindVertexArray(Quad_VAO);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
+            Mesh_Quad.Draw();
         }
 
-        {
+        { // Draw UniQuad
             glUseProgram(PipelineUnicolor.Program);
 
             UniQuad.RotZ = 0.0f;
@@ -186,8 +197,7 @@ namespace Arch
             glUniformMatrix4fv(PipelineColor_Loc_MVP, 1, GL_FALSE, (const GLfloat*)&MVP);
             glUniform4fv(PipelineUnicolor_Loc_uCol, 1, (const GLfloat*)&BgColors[QuadColIdx]);
 
-            glBindVertexArray(UnicolorQuad_VAO);
-            glDrawArrays(GL_TRIANGLES, 0, 6);
+            Mesh_UniQuad.Draw();
         }
 
         glfwSwapBuffers(Window);
@@ -195,6 +205,10 @@ namespace Arch
 
     void GFXState::Term()
     {
-
+        PipelineColor.Term();
+        PipelineUnicolor.Term();
+        Mesh_Tri.Term();
+        Mesh_Quad.Term();
+        Mesh_UniQuad.Term();
     }
 }
