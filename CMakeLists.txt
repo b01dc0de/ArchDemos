@@ -6,9 +6,11 @@ set(SRC_DIR src)
 set(SRC_FILES ${SRC_DIR}/ArchDemos.cpp)
 add_executable (ArchDemos WIN32 ${SRC_FILES})
 
-target_include_directories(ArchDemos PRIVATE libs/glfw/include)
-target_include_directories(ArchDemos PRIVATE libs/glad/include)
-target_include_directories(ArchDemos PRIVATE libs/HandmadeMath)
+target_include_directories(ArchDemos PRIVATE
+	libs/glfw/include
+	libs/glad/include
+	libs/HandmadeMath
+	libs/stb)
 
 set_property(TARGET ArchDemos PROPERTY CXX_STANDARD 11)
 if(MSVC)

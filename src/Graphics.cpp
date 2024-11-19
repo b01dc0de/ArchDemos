@@ -24,14 +24,15 @@ namespace Arch
         VxColor{{0.5f, 0.5f, DefaultZ}, {1.0f, 1.0f, 0.0f}},
     };
 
-    static const float QuadSize = 0.5f;
+    static const float QuadSize = 1.0f;
     static const VxMin MinQuadVxs[] =
     {
-        VxMin{-QuadSize, -QuadSize, 0.5f,},
-        VxMin{QuadSize, -QuadSize, 0.5f,},
+        VxMin{-QuadSize, -QuadSize, 0.5f},
+        VxMin{QuadSize, -QuadSize, 0.5f},
         VxMin{QuadSize, QuadSize, 0.5f},
         VxMin{-QuadSize, QuadSize, 0.5f},
-        VxMin{-QuadSize, -QuadSize, 0.5f,},
+        // TODO: Remove following after Index buffer is impl.
+        VxMin{-QuadSize, -QuadSize, 0.5f},
         VxMin{QuadSize, QuadSize, 0.5f},
     };
     using IxT = unsigned short;
@@ -39,6 +40,17 @@ namespace Arch
     {
         0, 1, 2,
         0, 2, 3
+    };
+
+    static const VxTexture TexQuadVxs[] =
+    {
+        VxTexture{{-QuadSize, -QuadSize, DefaultZ}, {0.0f, 1.0f}},
+        VxTexture{{+QuadSize, -QuadSize, DefaultZ}, {1.0f, 1.0f}},
+        VxTexture{{+QuadSize, +QuadSize, DefaultZ}, {1.0f, 0.0f}},
+        VxTexture{{-QuadSize, +QuadSize, DefaultZ}, {0.0f, 0.0f}},
+        // TODO: Remove following once indices are setup
+        VxTexture{{-QuadSize, -QuadSize, DefaultZ}, {0.0f, 1.0f}},
+        VxTexture{{+QuadSize, +QuadSize, DefaultZ}, {1.0f, 0.0f}},
     };
 
     void PipelineState::Init(const char* VertexSrcFilename, const char* FragmentSrcFilename)
@@ -111,6 +123,11 @@ namespace Arch
         PipelineUnicolor_Loc_uCol = glGetUniformLocation(PipelineUnicolor.Program, "uCol");
         PipelineUnicolor_Loc_vPos = glGetAttribLocation(PipelineUnicolor.Program, "vPos");
 
+        PipelineTexture.Init("src/glsl/vxtexture_v.glsl", "src/glsl/vxtexture_f.glsl");
+        PipelineTexture_Loc_MVP = glGetUniformLocation(PipelineTexture.Program, "MVP");
+        PipelineTexture_Loc_vPos = glGetAttribLocation(PipelineTexture.Program, "vPos");
+        PipelineTexture_Loc_vUV = glGetAttribLocation(PipelineTexture.Program, "vUV");
+
         {
             Tri.Pos = Vec2{ -570.0f, 405.0f };
             Tri.Size = Vec2{ 100.0f, 100.0f };
@@ -121,8 +138,12 @@ namespace Arch
             Quad.RotZ = 0.0f;
 
             UniQuad.Pos = Vec2{ 250.0f, -250.0f };
-            UniQuad.Size = Vec2{ 50.0f, 50.0f };
+            UniQuad.Size = Vec2{ 25.0f, 25.0f };
             UniQuad.RotZ = 0.0f;
+
+            TexQuad.Pos = Vec2{ -250.0f, -250.0f };
+            TexQuad.Size = Vec2{ 100.0f, 100.0f };
+            TexQuad.RotZ = 0.0f;
         }
 
         {
@@ -144,8 +165,40 @@ namespace Arch
             Mesh_UniQuad.BindVAO();
             glEnableVertexAttribArray(PipelineUnicolor_Loc_vPos);
             glVertexAttribPointer(PipelineUnicolor_Loc_vPos, 3, GL_FLOAT, GL_FALSE, sizeof(VxMin), (void*)offsetof(VxMin, Pos));
+
+            Mesh_TexQuad.Init(ARRAY_SIZE(TexQuadVxs), sizeof(VxTexture), TexQuadVxs);
+            Mesh_TexQuad.BindVAO();
+            glEnableVertexAttribArray(PipelineTexture_Loc_vPos);
+            glVertexAttribPointer(PipelineTexture_Loc_vPos, 3, GL_FLOAT, GL_FALSE, sizeof(VxTexture), (void*)offsetof(VxTexture, Pos));
+            glEnableVertexAttribArray(PipelineTexture_Loc_vUV);
+            glVertexAttribPointer(PipelineTexture_Loc_vUV, 2, GL_FLOAT, GL_FALSE, sizeof(VxTexture), (void*)offsetof(VxTexture, UV));
         }
 
+        { // Texture
+            int TestTextureWidth = 0, TestTextureHeight = 0, NumColorChannels = 0;
+            using ByteT = unsigned char;
+            std::string RelativeFilename = GetBaseDirectory() + std::string{"assets/test/DebugTexture16x16.bmp"};
+            ByteT* TextureData = stbi_load(RelativeFilename.c_str(), &TestTextureWidth, &TestTextureHeight, &NumColorChannels, 0);
+
+            if (TextureData)
+            {
+                glGenTextures(1, &TestTextureID);
+                glBindTexture(GL_TEXTURE_2D, TestTextureID);
+
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+
+                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TestTextureWidth, TestTextureHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, TextureData);
+                glGenerateMipmap(GL_TEXTURE_2D);
+
+                stbi_image_free(TextureData);
+            }
+        }
+
+        { // Global OpenGL
+        }
     }
 
     Mat4 GetOrthoVP(float Width, float Height)
@@ -168,12 +221,11 @@ namespace Arch
 
         Mat4 VP = GetOrthoVP((float)FrameWidth, (float)FrameHeight);
         float fTime = (float)glfwGetTime();
-        HMM_Mat4 MVP = HMM_M4D(1.0f);
         { // Draw Tri
             glUseProgram(PipelineColor.Program);
 
             Tri.RotZ = fTime;
-            MVP = VP * Tri.GetModelTransform();
+            Mat4 MVP = VP * Tri.GetModelTransform();
             glUniformMatrix4fv(PipelineColor_Loc_MVP, 1, GL_FALSE, (const GLfloat*)&MVP);
 
             Mesh_Tri.Draw();
@@ -183,7 +235,7 @@ namespace Arch
             glUseProgram(PipelineColor.Program);
 
             Quad.RotZ = -2.0f * fTime;
-            MVP = VP * Quad.GetModelTransform();
+            Mat4 MVP = VP * Quad.GetModelTransform();
             glUniformMatrix4fv(PipelineColor_Loc_MVP, 1, GL_FALSE, (const GLfloat*)&MVP);
 
             Mesh_Quad.Draw();
@@ -192,12 +244,23 @@ namespace Arch
         { // Draw UniQuad
             glUseProgram(PipelineUnicolor.Program);
 
-            UniQuad.RotZ = 0.0f;
-            MVP = VP * UniQuad.GetModelTransform();
+            Mat4 MVP = VP * UniQuad.GetModelTransform();
             glUniformMatrix4fv(PipelineColor_Loc_MVP, 1, GL_FALSE, (const GLfloat*)&MVP);
             glUniform4fv(PipelineUnicolor_Loc_uCol, 1, (const GLfloat*)&BgColors[QuadColIdx]);
 
             Mesh_UniQuad.Draw();
+        }
+
+        { // Draw TexQuad
+            glUseProgram(PipelineTexture.Program);
+
+            Mat4 MVP = VP * TexQuad.GetModelTransform();
+            glUniformMatrix4fv(PipelineTexture_Loc_MVP, 1, GL_FALSE, (const GLfloat*)&MVP);
+
+            //glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_2D, TestTextureID);
+
+            Mesh_TexQuad.Draw();
         }
 
         glfwSwapBuffers(Window);

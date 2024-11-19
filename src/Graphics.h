@@ -30,6 +30,12 @@ namespace Arch
         Vec3 Pos;
     };
 
+    struct VxTexture
+    {
+        Vec3 Pos;
+        Vec2 UV;
+    };
+
     struct PipelineState
     {
         GLuint vShader = 0;
@@ -83,9 +89,17 @@ namespace Arch
         GLint PipelineUnicolor_Loc_uCol = 0;
         GLint PipelineUnicolor_Loc_vPos = 0;
 
+        PipelineState PipelineTexture;
+        GLint PipelineTexture_Loc_MVP = 0;
+        GLint PipelineTexture_Loc_vPos = 0;
+        GLint PipelineTexture_Loc_vUV = 0;
+
+        GLuint TestTextureID = 0;
+
         Mesh Mesh_Tri;
         Mesh Mesh_Quad;
         Mesh Mesh_UniQuad;
+        Mesh Mesh_TexQuad;
 
         int BgIdx = 0;
         int QuadColIdx = 1;
@@ -93,6 +107,7 @@ namespace Arch
         Entity2D Tri;
         Entity2D Quad;
         Entity2D UniQuad;
+        Entity2D TexQuad;
 
         void Init();
         void Draw();

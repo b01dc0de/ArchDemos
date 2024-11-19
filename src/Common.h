@@ -20,6 +20,7 @@
 /* -----  END  OPENGL INCLUDES ----- */
 /* ----- BEGIN LIB INCLUDES ----- */
 #include <HandmadeMath.h>
+#include "stb_image.h"
 /* -----  END  LIB INCLUDES ----- */
 /* ----- BEGIN ARCHDEMOS INCLUDES ----- */
 #include "Math.h"
