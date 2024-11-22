@@ -5,20 +5,6 @@
 
 namespace Arch
 {
-    enum struct VertexType
-    {
-        Color,
-        Min,
-        Count
-    };
-
-    enum struct PipelineStateType
-    {
-        Color,
-        Unicolor,
-        Count
-    };
-
     struct VxColor
     {
         Vec3 Pos;
@@ -77,6 +63,43 @@ namespace Arch
         }
     };
 
+    struct Texture2D
+    {
+        const char* Filename = nullptr;
+        int Width = 0;
+        int Height = 0;
+        GLuint ID = 0;
+
+        bool Init(const char* InFilename);
+        void Term();
+    };
+
+    struct TextureManager
+    {
+        static Array<Texture2D> TextureList;
+
+        static Texture2D* FindTexture(const char* Filename);
+        static Texture2D* GetTexture(const char* Filename);
+        static void Term();
+    };
+
+    enum DrawCmdType
+    {
+        DRAWCMDTYPE_UNICOLOR,
+        DRAWCMDTYPE_TEXTURE,
+        DRAWCMDTYPE_COUNT
+    };
+    struct DrawCmd2D
+    {
+        DrawCmdType Type = DRAWCMDTYPE_COUNT;
+        Entity2D Entity;
+        union
+        {
+            Color Unicolor;
+            Texture2D* Tex2D;
+        } Params;
+    };
+
     struct GFXState
     {
         PipelineState PipelineColor;
@@ -94,7 +117,7 @@ namespace Arch
         GLint PipelineTexture_Loc_vPos = 0;
         GLint PipelineTexture_Loc_vUV = 0;
 
-        GLuint TestTextureID = 0;
+        Texture2D* FallbackTexture = nullptr;
 
         Mesh Mesh_Tri;
         Mesh Mesh_Quad;

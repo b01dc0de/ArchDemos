@@ -8,6 +8,7 @@
 /* -----  END  PLATFORM INCLUDES ----- */
 
 /* ----- BEGIN C/C++ STD LIB INCLUDES ----- */
+#include <cstdarg>
 #include <cstdio>
 #include <string>
 /* -----  END  C/C++ STD LIB INCLUDES ----- */

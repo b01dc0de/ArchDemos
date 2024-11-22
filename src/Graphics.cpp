@@ -111,6 +111,97 @@ namespace Arch
         glDeleteVertexArrays(1, &VAO);
     }
 
+    bool Texture2D::Init(const char* InFilename)
+    {
+        int TextureWidth = 0, TextureHeight = 0, NumColorChannels = 0;
+        using ByteT = unsigned char;
+
+        std::string RelativeFilename = GetBaseDirectory() + std::string{ InFilename };
+        ByteT* TextureData = stbi_load(RelativeFilename.c_str(), &TextureWidth, &TextureHeight, &NumColorChannels, 0);
+
+        bool bResult = false;
+
+        if (TextureData)
+        {
+            glGenTextures(1, &ID);
+            glBindTexture(GL_TEXTURE_2D, ID);
+
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+
+            glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TextureWidth, TextureHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, TextureData);
+            glGenerateMipmap(GL_TEXTURE_2D);
+
+            stbi_image_free(TextureData);
+        }
+
+        // If Texture init was successful:
+        if (0 != ID)
+        {
+            Filename = InFilename;
+            Width = TextureWidth;
+            Height = TextureHeight;
+            bResult = true;
+        }
+
+        return bResult;
+    }
+
+    void Texture2D::Term()
+    {
+        if (0 == ID)
+        {
+            glDeleteTextures(1, &ID);
+            Filename = nullptr;
+            Width = 0;
+            Height = 0;
+            ID = 0;
+        }
+    }
+
+    Array<Texture2D> TextureManager::TextureList{};
+
+    Texture2D* TextureManager::FindTexture(const char* Filename)
+    {
+        Texture2D* FoundTexture = nullptr;
+        for (int TexIdx = 0; TexIdx < TextureList.NumItems; TexIdx++)
+        {
+            Texture2D& CurrTex = TextureList[TexIdx];
+
+            if (0 == strcmp(CurrTex.Filename, Filename))
+            {
+                FoundTexture = &CurrTex;
+                break;
+            }
+        }
+        return FoundTexture;
+    }
+
+    Texture2D* TextureManager::GetTexture(const char* Filename)
+    {
+        Texture2D* Result = FindTexture(Filename);
+        if (nullptr == Result)
+        {
+            Texture2D NewTexture;
+            if (NewTexture.Init(Filename))
+            {
+                TextureList.Add(NewTexture);
+                Result = &TextureList[TextureList.NumItems - 1];
+            }
+        }
+        return Result;
+    }
+
+    void TextureManager::Term()
+    {
+        for (int TexIdx = 0; TexIdx < TextureList.NumItems; TexIdx++)
+        {
+            TextureList[TexIdx].Term();
+        }
+    }
+
     void GFXState::Init()
     {
         PipelineColor.Init("src/glsl/vxcolor_v.glsl", "src/glsl/vxcolor_f.glsl");
@@ -184,27 +275,8 @@ namespace Arch
             glVertexAttribPointer(PipelineTexture_Loc_vUV, 2, GL_FLOAT, GL_FALSE, sizeof(VxTexture), (void*)offsetof(VxTexture, UV));
         }
 
-        { // Texture
-            int TestTextureWidth = 0, TestTextureHeight = 0, NumColorChannels = 0;
-            using ByteT = unsigned char;
-            std::string RelativeFilename = GetBaseDirectory() + std::string{"assets/test/DebugTexture16x16.bmp"};
-            ByteT* TextureData = stbi_load(RelativeFilename.c_str(), &TestTextureWidth, &TestTextureHeight, &NumColorChannels, 0);
-
-            if (TextureData)
-            {
-                glGenTextures(1, &TestTextureID);
-                glBindTexture(GL_TEXTURE_2D, TestTextureID);
-
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
-                glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-
-                glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, TestTextureWidth, TestTextureHeight, 0, GL_RGB, GL_UNSIGNED_BYTE, TextureData);
-                glGenerateMipmap(GL_TEXTURE_2D);
-
-                stbi_image_free(TextureData);
-            }
+        { // Load Textures
+            FallbackTexture = TextureManager::GetTexture("assets/test/DebugTexture16x16.bmp");
         }
 
         { // Global OpenGL
@@ -268,7 +340,7 @@ namespace Arch
             glUniformMatrix4fv(PipelineTexture_Loc_MVP, 1, GL_FALSE, (const GLfloat*)&MVP);
 
             //glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, TestTextureID);
+            glBindTexture(GL_TEXTURE_2D, FallbackTexture->ID);
 
             Mesh_TexQuad.Draw();
         }

@@ -23,13 +23,13 @@ namespace Arch
         static const Color CellColors[] =
         {
             TetrisEmptyCellColor, // Empty
-            {0.0000, 0.9020, 0.9961, 1.0f}, // I / Light blue
-            {0.0941, 0.0039, 1.0000, 1.0f}, // J / Dark blue
-            {1.0000, 0.4510, 0.0314, 1.0f}, // L / Orange
-            {1.0000, 0.8706, 0.0000, 1.0f}, // O / Yellow
-            {0.4000, 0.9922, 0.0000, 1.0f}, // S / Green
-            {0.9961, 0.0627, 0.2353, 1.0f}, // Z / Red
-            {0.7216, 0.0078, 0.9922, 1.0f}, // T / Magenta
+            {0.0000f, 0.9020f, 0.9961f, 1.0f}, // I / Light blue
+            {0.0941f, 0.0039f, 1.0000f, 1.0f}, // J / Dark blue
+            {1.0000f, 0.4510f, 0.0314f, 1.0f}, // L / Orange
+            {1.0000f, 0.8706f, 0.0000f, 1.0f}, // O / Yellow
+            {0.4000f, 0.9922f, 0.0000f, 1.0f}, // S / Green
+            {0.9961f, 0.0627f, 0.2353f, 1.0f}, // Z / Red
+            {0.7216f, 0.0078f, 0.9922f, 1.0f}, // T / Magenta
         };
 
         void Init()
