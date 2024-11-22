@@ -109,6 +109,8 @@ namespace Arch
         Entity2D UniQuad;
         Entity2D TexQuad;
 
+        Entity2D TetrisGrid;
+
         void Init();
         void Draw();
         void Term();

@@ -144,6 +144,16 @@ namespace Arch
             TexQuad.Pos = Vec2{ -250.0f, -250.0f };
             TexQuad.Size = Vec2{ 100.0f, 100.0f };
             TexQuad.RotZ = 0.0f;
+
+
+            int Width = 0, Height = 0;
+            glfwGetFramebufferSize(Window, &Width, &Height);
+            float fWidth = (float)Width, fHeight = (float)Height;
+            static const float HalfGridWidth = fWidth / 8.0f;
+            static const float HalfGridHeight = fHeight / 2.0f;
+            TetrisGrid.Pos = Vec2{ 0.0f, 0.0f };
+            TetrisGrid.Size = Vec2{ HalfGridWidth, HalfGridHeight};
+            TetrisGrid.RotZ = 0.0f;
         }
 
         {
@@ -261,6 +271,18 @@ namespace Arch
             glBindTexture(GL_TEXTURE_2D, TestTextureID);
 
             Mesh_TexQuad.Draw();
+        }
+
+        {
+            glUseProgram(PipelineUnicolor.Program);
+
+            static const Color TetrisGridColor{ 0.1176f, 0.1176f, 0.1804f, 1.0f };
+
+            Mat4 MVP = VP * TetrisGrid.GetModelTransform();
+            glUniformMatrix4fv(PipelineColor_Loc_MVP, 1, GL_FALSE, (const GLfloat*)&MVP);
+            glUniform4fv(PipelineUnicolor_Loc_uCol, 1, (const GLfloat*)&TetrisGridColor);
+
+            Mesh_UniQuad.Draw();
         }
 
         glfwSwapBuffers(Window);
