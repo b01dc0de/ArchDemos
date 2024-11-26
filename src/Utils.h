@@ -1,9 +1,12 @@
 #ifndef ARCHDEMOS_UTILS_H
 #define ARCHDEMOS_UTILS_H
 
+// Utils.h included in Common.h
+
 namespace Arch
 {
 #define ARRAY_SIZE(A) (sizeof(A) / sizeof(A[0]))
+    using std::string;
 
     const char* GetBaseDirectory();
     const char* ReadFileContents(const char* Filename);

@@ -149,6 +149,11 @@ namespace Arch
         return bResult;
     }
 
+    bool Texture2D::IsValid()
+    {
+        return 0 != ID;
+    }
+
     void Texture2D::Term()
     {
         if (0 == ID)

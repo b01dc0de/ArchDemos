@@ -27,6 +27,10 @@ namespace Arch
         GLuint vShader = 0;
         GLuint fShader = 0;
         GLuint Program = 0;
+        // TODO(CKA):
+        //  - Would be nice to have a LocateUniforms(...) and LocateVxAttribs(...) functions
+        //      that take a list of strings and automatically locate and register each within a
+        //      managed list of shader locations
 
         void Init(const char* VertexSrcFilename, const char* FragmentSrcFilename);
         void Term();
@@ -71,6 +75,7 @@ namespace Arch
         GLuint ID = 0;
 
         bool Init(const char* InFilename);
+        bool IsValid();
         void Term();
     };
 

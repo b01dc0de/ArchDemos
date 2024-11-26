@@ -7,6 +7,7 @@ static bool bRunning = true;
 #define SINGLE_FILE_BUILD() (1)
 #if SINGLE_FILE_BUILD()
     #include "Engine.cpp"
+    #include "GameEntity.cpp"
     #include "Graphics.cpp"
     #include "Utils.cpp"
     #include "Game/Tetris.cpp"

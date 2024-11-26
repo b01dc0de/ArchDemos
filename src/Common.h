@@ -1,5 +1,5 @@
-#ifndef ARCHFILES_COMMON_H
-#define ARCHFILES_COMMON_H
+#ifndef ARCHDEMOS_COMMON_H
+#define ARCHDEMOS_COMMON_H
 
 /* ----- BEGIN PLATFORM INCLUDES ----- */
 // WINDOWS
@@ -29,4 +29,4 @@
 /* -----  END  ARCHDEMOS INCLUDES ----- */
 
 
-#endif // ARCHFILES_COMMON_H
+#endif // ARCHDEMOS_COMMON_H

@@ -4,7 +4,6 @@ namespace Arch
 {
     const char* GetBaseDirectory()
     {
-        using std::string;
         static string BaseDir{};
         static const char* BaseDirName = "ArchDemos";
         if (BaseDir.empty() && Arch_ArgCount > 0)
@@ -17,12 +16,16 @@ namespace Arch
         return BaseDir.c_str();
     }
 
+    string GetRelativeFilename(const char* Filename)
+    {
+        return string{ string{GetBaseDirectory()} + string{Filename} };
+    }
+
     const char* ReadFileContents(const char* Filename)
     {
         char* Result = nullptr;
 
-        std::string FullFilename = std::string(GetBaseDirectory());
-        FullFilename += Filename;
+        std::string FullFilename = GetRelativeFilename(Filename);
 
         FILE* FileHandle = nullptr;
         fopen_s(&FileHandle, FullFilename.c_str(), "rb");
